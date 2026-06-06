@@ -1,0 +1,19 @@
+services:
+  tdarr-dashboard:
+    image: ghcr.io/deepdaddyttv/tdarr-dashboard:latest
+    container_name: tdarr-dashboard
+    restart: unless-stopped
+    ports:
+      - "${TDARR_DASHBOARD_PORT:-8270}:8270"
+    environment:
+      TDARR_DB_PATH: /data/database.db
+      TDARR_UI_URL: "${TDARR_UI_URL:-http://localhost:8265}"
+      TDARR_DB_IMMUTABLE: "${TDARR_DB_IMMUTABLE:-true}"
+      REFRESH_SECONDS: "${REFRESH_SECONDS:-20}"
+      CACHE_TTL_SECONDS: "${CACHE_TTL_SECONDS:-45}"
+      RECENT_TRANSCODE_SAMPLE: "${RECENT_TRANSCODE_SAMPLE:-100}"
+    volumes:
+      - type: bind
+        source: ${TDARR_DATABASE_FILE:?Set TDARR_DATABASE_FILE to the full path of your Tdarr database.db file}
+        target: /data/database.db
+        read_only: true

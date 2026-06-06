@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ app_name }}</title>
+    <script>
+      (() => {
+        try {
+          const urlTheme = new URLSearchParams(window.location.search).get("theme");
+          const savedTheme = localStorage.getItem("tdarr-dashboard-theme");
+          const preferredTheme =
+            urlTheme === "light" || urlTheme === "dark"
+              ? urlTheme
+              : savedTheme === "light" || savedTheme === "dark"
+              ? savedTheme
+              : window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches
+                ? "light"
+                : "dark";
+          document.documentElement.dataset.theme = preferredTheme;
+        } catch (error) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}">
+  </head>
+  <body>
+    <div class="viewport-shell">
+      <main class="dashboard-frame">
+        <header class="dashboard-hero">
+          <div class="hero-copy">
+            <h1>Tdarr Command Deck</h1>
+            <p>
+              Live queue telemetry, completed transcodes, health check pressure,
+              and storage wins in one native surface.
+            </p>
+          </div>
+
+          <div class="hero-actions">
+            <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">
+              <svg class="theme-toggle__icon theme-toggle__icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.5"></circle>
+                <path d="M12 2.5v2.5"></path>
+                <path d="M12 19v2.5"></path>
+                <path d="m4.93 4.93 1.77 1.77"></path>
+                <path d="m17.3 17.3 1.77 1.77"></path>
+                <path d="M2.5 12H5"></path>
+                <path d="M19 12h2.5"></path>
+                <path d="m4.93 19.07 1.77-1.77"></path>
+                <path d="m17.3 6.7 1.77-1.77"></path>
+              </svg>
+              <svg class="theme-toggle__icon theme-toggle__icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"></path>
+              </svg>
+              <span id="theme-toggle-label">Light mode</span>
+            </button>
+
+            <strong id="status-pill" class="status-pill status-pill-neutral">Loading</strong>
+          </div>
+        </header>
+
+        <div id="error-banner" class="error-banner" hidden></div>
+
+        <section class="metric-grid" aria-label="Topline metrics">
+          <article class="metric-card metric-card-queue">
+            <div class="metric-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 7h3"></path>
+                <path d="M5 12h3"></path>
+                <path d="M5 17h3"></path>
+                <path d="M11 7h8"></path>
+                <path d="M11 12h8"></path>
+                <path d="M11 17h8"></path>
+              </svg>
+            </div>
+            <div class="metric-card__body">
+              <p class="metric-card__label">Queue</p>
+              <h2 id="queue-count" class="metric-card__value">--</h2>
+              <p id="queue-delta" class="metric-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="metric-card metric-card-processed">
+            <div class="metric-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m7 12 3 3 7-7"></path>
+              </svg>
+            </div>
+            <div class="metric-card__body">
+              <p class="metric-card__label">Processed</p>
+              <h2 id="processed-count" class="metric-card__value">--</h2>
+              <p id="processed-delta" class="metric-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="metric-card metric-card-errored">
+            <div class="metric-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 8v5"></path>
+                <path d="M12 17h.01"></path>
+              </svg>
+            </div>
+            <div class="metric-card__body">
+              <p class="metric-card__label">Errored</p>
+              <h2 id="errored-count" class="metric-card__value">--</h2>
+              <p id="errored-delta" class="metric-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="metric-card metric-card-saved">
+            <div class="metric-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7c0-1.1 3.58-2 8-2s8 .9 8 2-3.58 2-8 2-8-.9-8-2Z"></path>
+                <path d="M4 12c0 1.1 3.58 2 8 2s8-.9 8-2"></path>
+                <path d="M4 17c0 1.1 3.58 2 8 2s8-.9 8-2"></path>
+                <path d="M4 7v10"></path>
+                <path d="M20 7v10"></path>
+              </svg>
+            </div>
+            <div class="metric-card__body">
+              <p class="metric-card__label">Space Saved</p>
+              <h2 class="metric-card__value metric-card__value-split">
+                <span id="saved-primary">--</span>
+                <span id="saved-unit">GiB</span>
+              </h2>
+              <p id="saved-delta" class="metric-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="analysis-grid" aria-label="Telemetry and scores">
+          <article class="panel panel-telemetry">
+            <div class="panel__head">
+              <h3>Workflow Telemetry</h3>
+              <div class="legend">
+                <span class="legend__item legend__item-queue">Queue</span>
+                <span class="legend__item legend__item-processed">Processed</span>
+                <span class="legend__item legend__item-errored">Errored</span>
+              </div>
+            </div>
+
+            <div class="telemetry-stack">
+              <div class="telemetry-row telemetry-row-queue">
+                <div class="telemetry-row__name">Queue</div>
+                <div class="telemetry-row__track">
+                  <span id="telemetry-queue-bar" class="telemetry-row__stream">
+                    <svg class="telemetry-row__flow-svg" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">
+                      <path class="telemetry-row__flow telemetry-row__flow-primary" d="M2 17 L24 17 C34 17 36 8 48 10 C60 12 62 26 74 24 C84 22 88 17 98 17"></path>
+                      <path class="telemetry-row__flow telemetry-row__flow-secondary" d="M2 17 L19 17 C30 17 34 12 45 14 C57 16 62 21 73 21 C84 21 90 17 98 17"></path>
+                      <path class="telemetry-row__flow telemetry-row__flow-tertiary" d="M2 17 L28 17 C38 17 40 6 51 8 C63 10 68 30 80 24 C89 19 92 17 98 17"></path>
+                      <circle class="telemetry-row__particle telemetry-row__particle-a" cx="18" cy="17" r="1.6"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-b" cx="46" cy="13" r="1.15"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-c" cx="68" cy="23" r="1.05"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-d" cx="90" cy="18" r="0.95"></circle>
+                    </svg>
+                  </span>
+                </div>
+                <div class="telemetry-row__metric">
+                  <strong id="telemetry-queue-value">--</strong>
+                  <span id="telemetry-queue-delta">Awaiting live sync</span>
+                </div>
+              </div>
+
+              <div class="telemetry-row telemetry-row-processed">
+                <div class="telemetry-row__name">Processed</div>
+                <div class="telemetry-row__track">
+                  <span id="telemetry-processed-bar" class="telemetry-row__stream">
+                    <svg class="telemetry-row__flow-svg" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">
+                      <path class="telemetry-row__flow telemetry-row__flow-primary" d="M2 17 L26 17 C37 17 40 9 52 11 C63 13 67 25 79 23 C89 21 92 17 98 17"></path>
+                      <path class="telemetry-row__flow telemetry-row__flow-secondary" d="M2 17 L20 17 C31 17 34 11 47 13 C59 15 64 19 77 20 C88 21 92 17 98 17"></path>
+                      <path class="telemetry-row__flow telemetry-row__flow-tertiary" d="M2 17 L28 17 C39 17 42 7 54 9 C66 11 72 29 84 23 C92 19 95 17 98 17"></path>
+                      <circle class="telemetry-row__particle telemetry-row__particle-a" cx="20" cy="17" r="1.6"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-b" cx="48" cy="13" r="1.15"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-c" cx="72" cy="23" r="1.05"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-d" cx="92" cy="18" r="0.95"></circle>
+                    </svg>
+                  </span>
+                </div>
+                <div class="telemetry-row__metric">
+                  <strong id="telemetry-processed-value">--</strong>
+                  <span id="telemetry-processed-delta">Awaiting live sync</span>
+                </div>
+              </div>
+
+              <div class="telemetry-row telemetry-row-errored">
+                <div class="telemetry-row__name">Errored</div>
+                <div class="telemetry-row__track">
+                  <span id="telemetry-errored-bar" class="telemetry-row__stream">
+                    <svg class="telemetry-row__flow-svg" viewBox="0 0 100 34" preserveAspectRatio="none" aria-hidden="true">
+                      <path class="telemetry-row__flow telemetry-row__flow-primary" d="M2 17 L22 17 C31 17 34 10 44 12 C53 14 57 24 67 23 C78 22 86 18 98 17"></path>
+                      <path class="telemetry-row__flow telemetry-row__flow-secondary" d="M2 17 L18 17 C28 17 31 13 41 14 C52 15 57 18 69 19 C81 20 89 17 98 17"></path>
+                      <path class="telemetry-row__flow telemetry-row__flow-tertiary" d="M2 17 L24 17 C34 17 37 8 47 10 C57 12 62 27 73 23 C84 19 90 17 98 17"></path>
+                      <circle class="telemetry-row__particle telemetry-row__particle-a" cx="16" cy="17" r="1.6"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-b" cx="42" cy="13" r="1.15"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-c" cx="63" cy="23" r="1.05"></circle>
+                      <circle class="telemetry-row__particle telemetry-row__particle-d" cx="84" cy="18" r="0.95"></circle>
+                    </svg>
+                  </span>
+                </div>
+                <div class="telemetry-row__metric">
+                  <strong id="telemetry-errored-value">--</strong>
+                  <span id="telemetry-errored-delta">Awaiting live sync</span>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel panel-scores">
+            <div class="panel__head">
+              <h3>Scores</h3>
+            </div>
+
+            <div class="score-grid">
+              <article class="score-card">
+                <p class="score-card__label score-card__label-cyan">Transcode Score</p>
+                <div id="score-tdarr-ring" class="score-ring score-ring-cyan">
+                  <div class="score-ring__core">
+                    <span id="score-tdarr-value" class="score-ring__value">--</span>
+                    <span class="score-ring__scale">/100</span>
+                  </div>
+                </div>
+                <p id="score-tdarr-rating" class="score-card__headline">Waiting</p>
+                <p id="score-tdarr-copy" class="score-card__copy">Awaiting live transcode score.</p>
+              </article>
+
+              <article class="score-card">
+                <p class="score-card__label score-card__label-pink">Health Score</p>
+                <div id="score-health-ring" class="score-ring score-ring-pink">
+                  <div class="score-ring__core">
+                    <span id="score-health-value" class="score-ring__value">--</span>
+                    <span class="score-ring__scale">/100</span>
+                  </div>
+                </div>
+                <p id="score-health-rating" class="score-card__headline">Waiting</p>
+                <p id="score-health-copy" class="score-card__copy">Awaiting live health score.</p>
+              </article>
+            </div>
+          </article>
+        </section>
+
+        <section class="mini-grid" aria-label="Supporting stats">
+          <article class="mini-card mini-card-cyan">
+            <div class="mini-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8l-5-5Z"></path>
+                <path d="M8 3v5h5"></path>
+              </svg>
+            </div>
+            <div class="mini-card__body">
+              <p class="mini-card__label">Total Files</p>
+              <h4 id="files-value" class="mini-card__value">--</h4>
+              <p id="files-delta" class="mini-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="mini-card mini-card-violet">
+            <div class="mini-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 0 1 15.36-6.36L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-15.36 6.36L3 16"></path>
+                <path d="M3 21v-5h5"></path>
+              </svg>
+            </div>
+            <div class="mini-card__body">
+              <p class="mini-card__label">Total Transcodes</p>
+              <h4 id="transcodes-value" class="mini-card__value">--</h4>
+              <p id="transcodes-delta" class="mini-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="mini-card mini-card-pink">
+            <div class="mini-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 8.5a5.5 5.5 0 0 0-10-3.18A5.5 5.5 0 0 0 1 8.5c0 7 10 12 10 12s10-5 10-12Z"></path>
+                <path d="M8 12h2l1.5-3 2 6 1.5-3H18"></path>
+              </svg>
+            </div>
+            <div class="mini-card__body">
+              <p class="mini-card__label">Health Checks</p>
+              <h4 id="health-value" class="mini-card__value">--</h4>
+              <p id="health-delta" class="mini-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="mini-card mini-card-gold">
+            <div class="mini-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7c0-1.1 3.58-2 8-2s8 .9 8 2-3.58 2-8 2-8-.9-8-2Z"></path>
+                <path d="M4 12c0 1.1 3.58 2 8 2s8-.9 8-2"></path>
+                <path d="M4 17c0 1.1 3.58 2 8 2s8-.9 8-2"></path>
+                <path d="M4 7v10"></path>
+                <path d="M20 7v10"></path>
+              </svg>
+            </div>
+            <div class="mini-card__body">
+              <p class="mini-card__label">DB Queue</p>
+              <h4 id="db-queue-value" class="mini-card__value">--</h4>
+              <p id="db-queue-delta" class="mini-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="mini-card mini-card-aqua">
+            <div class="mini-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 18V6"></path>
+                <path d="M20 18H4"></path>
+                <path d="m7 15 4-4 3 3 4-6"></path>
+              </svg>
+            </div>
+            <div class="mini-card__body">
+              <p class="mini-card__label">DB Load</p>
+              <h4 id="db-load-value" class="mini-card__value">--</h4>
+              <p id="db-load-delta" class="mini-card__delta">Awaiting live sync</p>
+            </div>
+          </article>
+
+          <article class="mini-card mini-card-blue mini-card-last-sync">
+            <div class="mini-card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 3"></path>
+              </svg>
+            </div>
+            <div class="mini-card__body">
+              <p class="mini-card__label">Last Sync</p>
+              <h4 id="last-sync-value" class="mini-card__value">--</h4>
+              <p id="last-sync-delta" class="mini-card__delta">Awaiting live sync</p>
+              <p id="last-sync-detail" class="mini-card__detail">Awaiting live sync</p>
+            </div>
+          </article>
+        </section>
+
+        <section class="cta-row">
+          <a id="open-tdarr-link" class="cta-button cta-button-cyan" href="{{ tdarr_ui_url }}" target="_blank" rel="noreferrer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 5h5v5"></path>
+              <path d="M10 14 19 5"></path>
+              <path d="M19 14v5h-5"></path>
+              <path d="M5 10V5h5"></path>
+            </svg>
+            <span>Open Tdarr</span>
+          </a>
+
+          <button id="refresh-button" class="cta-button cta-button-pink" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 12a9 9 0 0 1 15.36-6.36L21 8"></path>
+              <path d="M21 3v5h-5"></path>
+              <path d="M21 12a9 9 0 0 1-15.36 6.36L3 16"></path>
+              <path d="M3 21v-5h5"></path>
+            </svg>
+            <span>Refresh Data</span>
+          </button>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      window.TDARR_DASHBOARD_REFRESH = {{ refresh_seconds }};
+      window.TDARR_UI_URL = {{ tdarr_ui_url|tojson }};
+    </script>
+    <script src="/static/app.js?v={{ asset_version }}"></script>
+  </body>
+</html>
