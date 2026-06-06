@@ -180,7 +180,7 @@ textarea {
   width: 100%;
   padding: 22px 26px 22px;
   border: 1px solid var(--border-soft);
-  border-radius: 32px;
+  border-radius: 0;
   background:
     radial-gradient(circle at 72% 12%, var(--frame-accent-a), transparent 16%),
     radial-gradient(circle at 18% 100%, var(--frame-accent-b), transparent 24%),
@@ -245,7 +245,7 @@ body,
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 20px;
+  gap: 12px;
 }
 
 .hero-actions {
@@ -253,7 +253,7 @@ body,
   align-items: center;
   justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
 }
 
 .hero-copy h1 {
@@ -279,7 +279,7 @@ body,
   gap: 12px;
   min-height: 54px;
   padding: 0 24px;
-  border-radius: 999px;
+  border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: var(--pill-bg);
   font-size: 1rem;
@@ -291,11 +291,11 @@ body,
 .theme-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   min-height: 54px;
-  padding: 0 18px;
+  padding: 0 16px;
   border: 1px solid var(--border-soft);
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--pill-bg);
   color: var(--text-body);
   font-family: var(--font-display);
@@ -368,7 +368,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
   margin-top: 16px;
   padding: 12px 16px;
   border: 1px solid var(--error-border);
-  border-radius: 18px;
+  border-radius: 0;
   background: var(--error-bg);
   color: var(--error-text);
   font-size: 0.9rem;
@@ -382,8 +382,8 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 18px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .metric-card,
@@ -409,10 +409,10 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 .metric-card {
   display: flex;
   align-items: center;
-  gap: 18px;
-  min-height: 128px;
-  padding: 16px 18px 14px;
-  border-radius: 20px;
+  gap: 14px;
+  min-height: 120px;
+  padding: 14px;
+  border-radius: 0;
 }
 
 .metric-card::after {
@@ -451,7 +451,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
   flex: 0 0 auto;
   width: 74px;
   height: 74px;
-  border-radius: 50%;
+  border-radius: 0;
   border: 1px solid currentColor;
   background: var(--icon-bg);
   box-shadow: inset 0 0 22px rgba(255, 255, 255, 0.02), 0 0 28px color-mix(in srgb, currentColor 18%, transparent);
@@ -541,13 +541,13 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 .analysis-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.14fr) minmax(0, 0.98fr);
-  gap: 14px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .panel {
-  padding: 16px 18px 16px;
-  border-radius: 20px;
+  padding: 14px;
+  border-radius: 0;
 }
 
 .panel__head {
@@ -556,7 +556,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 16px;
+  gap: 12px;
 }
 
 .panel__head h3 {
@@ -567,7 +567,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 
 .legend {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   padding-top: 4px;
   align-items: center;
 }
@@ -610,14 +610,14 @@ html[data-theme="light"] .theme-toggle__icon-moon {
   position: relative;
   z-index: 1;
   display: grid;
-  gap: 18px;
-  margin-top: 18px;
+  gap: 14px;
+  margin-top: 14px;
 }
 
 .telemetry-row {
   display: grid;
   grid-template-columns: 88px minmax(0, 1fr) 120px;
-  gap: 14px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -663,7 +663,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
   overflow: hidden;
   height: 42px;
   border: 1px solid var(--track-border);
-  border-radius: 15px;
+  border-radius: 0;
   background: var(--track-bg);
 }
 
@@ -893,17 +893,17 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 .mini-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .mini-card {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  min-height: 110px;
-  padding: 14px 12px 12px;
-  border-radius: 18px;
+  align-items: center;
+  gap: 10px;
+  min-height: 98px;
+  padding: 12px 10px;
+  border-radius: 0;
 }
 
 .mini-card__icon {
@@ -971,20 +971,20 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 .cta-row {
   display: flex;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
   margin-top: auto;
-  padding-top: 16px;
+  padding-top: 12px;
 }
 
 .cta-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 10px;
   min-width: 256px;
   min-height: 56px;
-  padding: 0 24px;
-  border-radius: 16px;
+  padding: 0 20px;
+  border-radius: 0;
   border: 1px solid currentColor;
   background: var(--button-bg);
   color: var(--text-strong);
@@ -1067,7 +1067,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
   .dashboard-frame {
     min-height: auto;
     padding: 22px 18px 24px;
-    border-radius: 28px;
+    border-radius: 0;
   }
 
   .dashboard-hero {
@@ -1099,7 +1099,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 
   .score-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 16px;
   }
 
   .score-card + .score-card {
@@ -1114,7 +1114,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
 
   .cta-row {
     flex-direction: column;
-    gap: 18px;
+    gap: 12px;
   }
 
   .cta-button {
@@ -1142,7 +1142,7 @@ html[data-theme="light"] .theme-toggle__icon-moon {
   }
 
   .legend {
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
   }
 
