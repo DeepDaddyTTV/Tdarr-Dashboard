@@ -60,6 +60,36 @@ Typical Tdarr database path examples:
 - `/opt/tdarr/server/Tdarr/DB2/SQL/database.db`
 - `/srv/tdarr/Tdarr/DB2/SQL/database.db`
 
+You can use the included file directly:
+
+```bash
+docker compose up -d
+```
+
+Or drop this into your own stack:
+
+```yaml
+services:
+  tdarr-dashboard:
+    image: ghcr.io/deepdaddyttv/tdarr-dashboard:latest
+    container_name: tdarr-dashboard
+    restart: unless-stopped
+    ports:
+      - "${TDARR_DASHBOARD_PORT:-8270}:8270"
+    environment:
+      TDARR_DB_PATH: /data/database.db
+      TDARR_UI_URL: "${TDARR_UI_URL:-http://localhost:8265}"
+      TDARR_DB_IMMUTABLE: "${TDARR_DB_IMMUTABLE:-true}"
+      REFRESH_SECONDS: "${REFRESH_SECONDS:-20}"
+      CACHE_TTL_SECONDS: "${CACHE_TTL_SECONDS:-45}"
+      RECENT_TRANSCODE_SAMPLE: "${RECENT_TRANSCODE_SAMPLE:-100}"
+    volumes:
+      - type: bind
+        source: ${TDARR_DATABASE_FILE:?Set TDARR_DATABASE_FILE to the full path of your Tdarr database.db file}
+        target: /data/database.db
+        read_only: true
+```
+
 ## Environment Variables
 
 | Variable | Default | Purpose |
@@ -98,6 +128,10 @@ It reports whether the mounted database file is reachable, without exposing inte
 ## Theme Support
 
 The dashboard includes both dark mode and light mode, with a built-in theme toggle that remembers your preference in the browser.
+
+## Privacy And Portability
+
+The public repo is intentionally scrubbed of environment-specific values. It does not include private IPs, internal hostnames, local mount paths, tokens, or machine-specific Tdarr database locations.
 
 ## Publishing
 
