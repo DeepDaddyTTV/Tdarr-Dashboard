@@ -23,6 +23,8 @@
         }
       })();
     </script>
+    <link rel="icon" type="image/png" href="/static/favicon.png?v={{ asset_version }}">
+    <link rel="apple-touch-icon" href="/static/favicon.png?v={{ asset_version }}">
     <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}">
   </head>
   <body>
@@ -30,7 +32,15 @@
       <main class="dashboard-frame">
         <header class="dashboard-hero">
           <div class="hero-copy">
-            <h1>Tdarr Command Deck</h1>
+            <div class="hero-title">
+              <img
+                class="hero-logo"
+                src="/static/main-screen-logo.png?v={{ asset_version }}"
+                alt=""
+                aria-hidden="true"
+              >
+              <h1>Tdarr Dashboard</h1>
+            </div>
             <p>
               Live queue telemetry, completed transcodes, health check pressure,
               and storage wins in one native surface.

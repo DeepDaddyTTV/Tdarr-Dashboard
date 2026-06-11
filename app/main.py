@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-APP_NAME = "TDarr Dashboard"
+APP_NAME = "Tdarr Dashboard"
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = os.getenv("TDARR_DB_PATH", "/data/database.db")
 DB_IMMUTABLE = os.getenv("TDARR_DB_IMMUTABLE", "").strip().lower() in {"1", "true", "yes", "on"}
@@ -42,7 +42,12 @@ cache = SnapshotCache()
 
 
 def current_asset_version() -> str:
-    asset_paths = [BASE_DIR / "static" / "style.css", BASE_DIR / "static" / "app.js"]
+    asset_paths = [
+        BASE_DIR / "static" / "style.css",
+        BASE_DIR / "static" / "app.js",
+        BASE_DIR / "static" / "favicon.png",
+        BASE_DIR / "static" / "main-screen-logo.png",
+    ]
     mtimes = [path.stat().st_mtime for path in asset_paths if path.exists()]
     return str(int(max(mtimes))) if mtimes else "1"
 
